@@ -22,3 +22,14 @@ export interface ChatHistory {
   chatId: string
   lastUpdated: string
 }
+
+export interface ChatSidebarProps {
+  chats: Message[];
+  currentChatId: string;
+  onChatSelect: (chatId: string) => void;
+  onNewChat: () => void;
+  resetChatWhenAddOrDelete: () => void;
+  changeChatIdWhenNewChat: (chatId: string) => void;
+  trackNewChat: boolean
+  setTrackNewChat: (value: boolean) => void;
+}

@@ -9,9 +9,8 @@ import { AxiosError, AxiosResponse } from "axios";
 import { toast } from "sonner";
 import { _post } from "@/api/apiClient";
 import moment from "moment";
+import { CHAT_MODE, ORG_ID } from '../utils/mode';
 
-export const CHAT_MODE = 'affirming';
-const ORG_ID = 'ZYLEN';
 const INITIAL_STATE =  { _id: '', title: '', messages: [], createdAt: new Date() }
 
 const ChatPage = () => {
@@ -26,7 +25,6 @@ const ChatPage = () => {
   const [ trackNewChat, setTrackNewChat ] = useState(false); // This state disable getAllHistory api when i click addnewchat in sidebar;
 
   const createNewChat = () => {
-    // console.log('iam coming inside the 29 --->');
     const newChat: Chat = {
       _id: Date.now().toString(),
       title: "New Chat",
@@ -35,9 +33,8 @@ const ChatPage = () => {
     };
     setChats(newChat);
     setStartContinueChat(false);
-    // setCurrentChatId(newChat._id);
   };
-console.log(startContinueChat, 'checking the continue chat 39 -->');
+
   const continueChatApi = async (message: string) => {
     setIsLoading(true)
     try {
@@ -58,8 +55,6 @@ console.log(startContinueChat, 'checking the continue chat 39 -->');
     }
   }
 
-  // console.log(currentChatId, 'checking the chatId 42 --->');
-
   const sendMessage = async (content: string) => {
     if (isLoading) return;
     
@@ -70,12 +65,7 @@ console.log(startContinueChat, 'checking the continue chat 39 -->');
       mode: CHAT_MODE
     }
     if (startContinueChat) {
-      setChats((prev) => {
-        return {
-          ...prev,
-          messages: [...prev.messages, { _id: Date.now().toString(),content, mode: CHAT_MODE, role: 'user', timestamp: new Date() }]
-        }
-      })
+      setChats((prev) => ({ ...prev, messages: [...prev.messages, { _id: Date.now().toString(), content, mode: CHAT_MODE, role: 'user', timestamp: new Date() }] }))
       continueChatApi(content);
       return;
     }
@@ -112,7 +102,7 @@ console.log(startContinueChat, 'checking the continue chat 39 -->');
 
   const selectAnotherChat = async (chatId: string) => {
     setCurrentChatId(chatId)
-    console.log("Iam coming insdie the selctanotherchat function 114 -->")
+
     try {
       const response = await _post('/chat/messages',{ chatId }) as AxiosResponse<{ _id: string, althenaUserId: string, title: string, messages: Message[], mode: string, isPinned: boolean, chatId: string, lastUpdates: string }>
       if (response.data.chatId) {
@@ -138,10 +128,6 @@ console.log(startContinueChat, 'checking the continue chat 39 -->');
     setTrackNewChat(value)
   }
 
-  const deleteChat = async (chatId: string) => {
-    console.log(chatId, 'checking the chatId 163 --->');
-  };
-
   useEffect(() => {
     // Check if user is authenticated
     const isAuthenticated = localStorage.getItem("isAuthenticated");
@@ -160,7 +146,6 @@ console.log(startContinueChat, 'checking the continue chat 39 -->');
           currentChatId={currentChatId}
           onChatSelect={selectAnotherChat}
           onNewChat={createNewChat}
-          onDeleteChat={deleteChat}
           resetChatWhenAddOrDelete={resetChatWhenAddOrDelete}
           changeChatIdWhenNewChat={changeChatIdWhenNewChat}
           trackNewChat = {trackNewChat}

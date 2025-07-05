@@ -2,64 +2,23 @@ import { useEffect, useCallback, useState } from 'react';
 import { Plus, MessageSquare, Trash2, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import { Chat, ChatHistory, Message } from "@/types/chat";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { Chat, ChatHistory, ChatSidebarProps, Message } from "@/types/chat";
 import { cn } from "@/lib/utils";
 import { userDetails } from '@/types/login';
 import { _post, _put } from '@/api/apiClient';
 import { AxiosError, AxiosResponse } from 'axios';
 import { toast } from 'sonner';
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel } from "@/components/ui/alert-dialog";
 import moment from 'moment';
+import { CHAT_MODE,ORG_ID } from '../utils/mode';
 
-const CHAT_MODE = 'affirming';
-const ORG_ID = 'ZYLEN';
 
-interface ChatSidebarProps {
-  chats: Message[];
-  currentChatId: string;
-  onChatSelect: (chatId: string) => void;
-  onNewChat: () => void;
-  onDeleteChat: (chatId: string) => void;
-  resetChatWhenAddOrDelete: () => void;
-  changeChatIdWhenNewChat: (chatId: string) => void;
-  trackNewChat: boolean
-  setTrackNewChat: (value: boolean) => void;
-}
-
-export function ChatSidebar({
-  chats,
-  currentChatId,
-  onChatSelect,
-  onNewChat,
-  onDeleteChat,
-  resetChatWhenAddOrDelete,
-  changeChatIdWhenNewChat,
-  setTrackNewChat, trackNewChat
-}: ChatSidebarProps) {
+export function ChatSidebar({ chats, currentChatId, onChatSelect, onNewChat, resetChatWhenAddOrDelete, changeChatIdWhenNewChat, setTrackNewChat, trackNewChat }: ChatSidebarProps) {
   const { state } = useSidebar();
   const [ chatHistory, setChatHistory ] = useState<ChatHistory[]>([]);
-  const [chatToDelete, setChatToDelete] = useState<ChatHistory | null>(null);
-  // const [ trackNewChat, setNewChat ] = useState(false);
+  const [ chatToDelete, setChatToDelete ] = useState<ChatHistory | null>(null);
+
   const collapsed = state === "collapsed";
   const authenticatedDetails: userDetails = JSON.parse(localStorage.getItem('isAuthenticated'));
   const userId = authenticatedDetails._id;
@@ -92,6 +51,7 @@ export function ChatSidebar({
         toast.error(err.response.data.message)
       }
     }
+    setTrackNewChat(false);
   }
   const addNewChat = () => {
     const dummyInitialState = { _id: String(chatHistory.length), title: "new chat", mode: CHAT_MODE, isPinned: false, chatId: String(chatHistory.length), lastUpdated: moment().toString() };
@@ -107,9 +67,7 @@ export function ChatSidebar({
       getAllChats()
     }
   }, [chats, getAllChats, trackNewChat])
-  console.log(chatHistory, 'checking the chats mesages in the conseole 85 -->')
 
-  console.log(currentChatId, 'checking the currentChatId 112 000')
   return (
     <>
       {/* Mobile header with trigger */}
@@ -119,7 +77,7 @@ export function ChatSidebar({
             <Menu className="h-6 w-6" />
           </SidebarTrigger>
           <h1 className="text-lg font-semibold">Althene</h1>
-          <Button onClick={addNewChat} size="sm" variant="outline">
+          <Button onClick={addNewChat} size="sm" variant="outline" disabled={trackNewChat}>
             <Plus className="h-4 w-4" />
           </Button>
         </div>
@@ -131,7 +89,7 @@ export function ChatSidebar({
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Althena
             </h1>
-            <Button onClick={addNewChat} size="sm" variant="outline" className="hidden md:flex">
+            <Button onClick={addNewChat} size="sm" variant="outline" className="hidden md:flex" disabled={trackNewChat}>
               <Plus className="h-4 w-4 mr-2" />
               New Chat
             </Button>

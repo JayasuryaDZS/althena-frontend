@@ -31,8 +31,6 @@ const Signup = () => {
     try {
       const response = await _post('/create', { name, email, password, phoneNumber }) as AxiosResponse<{ data: userDetails, statusCode: number }>
       if (response.data.data) {
-        // localStorage.setItem('isAuthenticated', JSON.stringify(response.data.data))
-        // localStorage.setItem('userName', response.data.data.name);
         navigate("/")
       }
     } catch (error) {
@@ -41,17 +39,6 @@ const Signup = () => {
     } finally {
       setIsLoading(false)
     }
-    // Simulate signup process
-    // setTimeout(() => {
-    //   // Store user authentication status
-    //   localStorage.setItem("isAuthenticated", "true");
-    //   localStorage.setItem("userEmail", email);
-    //   localStorage.setItem("userName", name);
-      
-    //   // Redirect to home page
-    //   navigate("/home");
-    //   setIsLoading(false);
-    // }, 1000);
   };
 
   return (
